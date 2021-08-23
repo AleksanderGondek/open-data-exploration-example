@@ -1,13 +1,6 @@
-{
-  pkgs ? import <nixpkgs> { system = builtins.currentSystem; }
-  , name
-  , helm_chart_src
-  , namespace ? name
-  , helm_chart_subpath ? "./"
-  , values_yaml_path ? null
-  , force_create_ns ? true
-  , ...
-}:
+{ pkgs ? import <nixpkgs> { system = builtins.currentSystem; }, name
+, helm_chart_src, namespace ? name, helm_chart_subpath ? "./"
+, values_yaml_path ? null, force_create_ns ? true, ... }:
 let
   namespace_definition = pkgs.writeText "${namespace}.yaml" ''
     ---
@@ -25,15 +18,11 @@ let
     resources:
     - "${name}.tmp.yaml"
   '';
-in
-pkgs.stdenv.mkDerivation {
+in pkgs.stdenv.mkDerivation {
   inherit name;
   src = helm_chart_src;
 
-  nativeBuildInputs = with pkgs; [
-    kubernetes-helm
-    kustomize
-  ];
+  nativeBuildInputs = with pkgs; [ kubernetes-helm kustomize ];
 
   phases = [ "unpackPhase" "configurePhase" "buildPhase" "installPhase" ];
   configurePhase = ''
@@ -56,18 +45,22 @@ pkgs.stdenv.mkDerivation {
   '';
 
   buildPhase = ''
-     ${if force_create_ns
-      then "cat " + namespace_definition + " > ${name}.tmp.yaml"
-      else ""
+     ${
+       if force_create_ns then
+         "cat " + namespace_definition + " > ${name}.tmp.yaml"
+       else
+         ""
      }
 
     echo -n "Templating the chart... "
     helm template \
      --create-namespace \
      --include-crds \
-     ${if !(builtins.isNull values_yaml_path)
-      then "-f " + values_yaml_path + "\\"
-      else "\\"
+     ${
+       if !(builtins.isNull values_yaml_path) then
+         "-f " + values_yaml_path + "\\"
+       else
+         "\\"
      }
      -n ${namespace} \
      ${name} \
