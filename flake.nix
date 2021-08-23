@@ -8,11 +8,9 @@
 
   outputs = { self, pkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system: {
-      defaultPackage = (import ./default.nix {
-        pkgs = pkgs.legacyPackages.${system};
-      }).odee;
-      devShell = (import ./default.nix {
-        pkgs = pkgs.legacyPackages.${system};
-      }).shell;
+      defaultPackage =
+        (import ./default.nix { pkgs = pkgs.legacyPackages.${system}; }).odee;
+      devShell =
+        (import ./default.nix { pkgs = pkgs.legacyPackages.${system}; }).shell;
     });
 }
