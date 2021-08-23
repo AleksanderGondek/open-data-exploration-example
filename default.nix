@@ -26,9 +26,16 @@ let
     elasticsearch_hosts = "http://elasticsearch-master.odee-elasticsearch:9200";
   };
 
+  minio_helm_chart = import ./minio.nix {
+    inherit pkgs create_helm_chart;
+    name = "odee-minio";
+    namespace = "odee-minio";
+    host = "blackwood";
+  };
+
   odee = pkgs.symlinkJoin {
     inherit name;
-    paths = [ elasticsearch_helm_chart kibana_helm_chart ];
+    paths = [ elasticsearch_helm_chart kibana_helm_chart minio_helm_chart ];
   };
 
   shell = pkgs.mkShell {
