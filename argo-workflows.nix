@@ -5,21 +5,26 @@ let
   # Argo Workflows release 0.4.2
   argo_wf_helm_chart_src = builtins.fetchTarball {
     url =
-      "https://github.com/argoproj/argo-helm/archive/11ec82596b5a62ba9d7c974c1a25aede739437b2.zip";
+      "https://github.com/argoproj/argo-helm/archive/11ec82596b5a62ba9d7c974c1a25aede739437b2.tar.gz";
     sha256 = "0afnxk21kj4by6zxnz70qxjzqlh091jjasm5rw81yk13hfjcldg3";
   };
 
   manual_yaml_definitions = pkgs.writeText "${name}-manual-defs.yaml" ''
     ---
-    ${builtins.readFile (argo_wf_helm_chart_src + "/charts/argo-workflows/crds/argoproj.io_clusterworkflowtemplates.yaml")}
+    ${builtins.readFile (argo_wf_helm_chart_src
+      + "/charts/argo-workflows/crds/argoproj.io_clusterworkflowtemplates.yaml")}
     ---
-    ${builtins.readFile (argo_wf_helm_chart_src + "/charts/argo-workflows/crds/argoproj.io_cronworkflows.yaml")}
+    ${builtins.readFile (argo_wf_helm_chart_src
+      + "/charts/argo-workflows/crds/argoproj.io_cronworkflows.yaml")}
     ---
-    ${builtins.readFile (argo_wf_helm_chart_src + "/charts/argo-workflows/crds/argoproj.io_workfloweventbindings.yaml")}
+    ${builtins.readFile (argo_wf_helm_chart_src
+      + "/charts/argo-workflows/crds/argoproj.io_workfloweventbindings.yaml")}
     ---
-    ${builtins.readFile (argo_wf_helm_chart_src + "/charts/argo-workflows/crds/argoproj.io_workflows.yaml")}
+    ${builtins.readFile (argo_wf_helm_chart_src
+      + "/charts/argo-workflows/crds/argoproj.io_workflows.yaml")}
     ---
-    ${builtins.readFile (argo_wf_helm_chart_src + "/charts/argo-workflows/crds/argoproj.io_workflowtemplates.yaml")}
+    ${builtins.readFile (argo_wf_helm_chart_src
+      + "/charts/argo-workflows/crds/argoproj.io_workflowtemplates.yaml")}
     ---
     apiVersion: "v1"
     kind: "Namespace"
@@ -113,29 +118,19 @@ let
           endpoint = "odee-minio.odee-minio.svc.cluster.local:9000";
         };
       };
-      controller = {
-        containerRuntimeExecutor = "k8sapi";
-      };
+      controller = { containerRuntimeExecutor = "k8sapi"; };
       createAggregateRoles = true;
       singleNamespace = true;
       server = {
         enabled = true;
         baseHref = "/argo/";
-        ingress = {
-          enabled = false;
-        };
-        clusterWorkflowTemplates = {
-          enableEditing = true;
-        };
-        extraArgs = [
-          "--auth-mode=server"
-        ];
+        ingress = { enabled = false; };
+        clusterWorkflowTemplates = { enableEditing = true; };
+        extraArgs = [ "--auth-mode=server" ];
       };
       useStaticCredentials = true;
       useDefaultArtifactRepo = true;
-      minio = {
-        install = false;
-      };
+      minio = { install = false; };
     });
 in create_helm_chart {
   inherit pkgs name;

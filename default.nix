@@ -42,7 +42,12 @@ let
 
   odee = pkgs.symlinkJoin {
     inherit name;
-    paths = [ elasticsearch_helm_chart kibana_helm_chart minio_helm_chart argo_wf_helm_chart ];
+    paths = [
+      elasticsearch_helm_chart
+      kibana_helm_chart
+      minio_helm_chart
+      argo_wf_helm_chart
+    ];
   };
 
   shell = pkgs.mkShell {
@@ -55,4 +60,7 @@ let
       echo "Deployment bundle avaiable under path: ${odee}"
     '';
   };
-in { inherit odee shell elasticsearch_helm_chart kibana_helm_chart minio_helm_chart argo_wf_helm_chart; }
+in {
+  inherit odee shell elasticsearch_helm_chart kibana_helm_chart minio_helm_chart
+    argo_wf_helm_chart;
+}
