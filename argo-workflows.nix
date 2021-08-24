@@ -9,7 +9,7 @@ let
     sha256 = "0afnxk21kj4by6zxnz70qxjzqlh091jjasm5rw81yk13hfjcldg3";
   };
 
-  manual_yaml_definitions = pkgs.writeText "${name}-manual-defs.yaml" ''
+  crds = pkgs.writeTextDir "${name}-crds.yaml" ''
     ---
     ${builtins.readFile (argo_wf_helm_chart_src
       + "/charts/argo-workflows/crds/argoproj.io_clusterworkflowtemplates.yaml")}
@@ -25,6 +25,9 @@ let
     ---
     ${builtins.readFile (argo_wf_helm_chart_src
       + "/charts/argo-workflows/crds/argoproj.io_workflowtemplates.yaml")}
+  '';
+
+  manual_yaml_definitions = pkgs.writeText "${name}-manual-defs.yaml" ''
     ---
     apiVersion: "v1"
     kind: "Namespace"
@@ -132,12 +135,22 @@ let
       useDefaultArtifactRepo = true;
       minio = { install = false; };
     });
-in create_helm_chart {
-  inherit pkgs name;
-  helm_chart_src = argo_wf_helm_chart_src;
-  namespace = namespace;
-  helm_chart_subpath = "./charts/argo-workflows";
-  values_yaml_path = argo_wf_helm_chart_values_yaml;
-  force_create_ns = false;
-  yaml_extra_defs = manual_yaml_definitions;
-}
+
+  argo_wf_deployment_manifest = create_helm_chart {
+    inherit pkgs name;
+    helm_chart_src = argo_wf_helm_chart_src;
+    namespace = namespace;
+    helm_chart_subpath = "./charts/argo-workflows";
+    values_yaml_path = argo_wf_helm_chart_values_yaml;
+    force_create_ns = false;
+    yaml_extra_defs = manual_yaml_definitions;
+    include_crds = false;
+  };
+in 
+  pkgs.symlinkJoin {
+    inherit name;
+    paths = [
+      crds
+      argo_wf_deployment_manifest
+    ];
+  }
