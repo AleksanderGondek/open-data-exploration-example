@@ -7,6 +7,10 @@ let
     (pkgs.lib.generators.toYAML { } {
       antiAffinity = "soft";
       esJavaOpts = "-Xmx128m -Xms128m";
+      roles = [
+        "master"
+        "data"
+      ];
       resources = {
         requests = {
           cpu = "100m";
@@ -14,7 +18,7 @@ let
         };
         limits = {
           cpu = "1000m";
-          memory = "512M";
+          memory = "1Gi";
         };
       };
     });
