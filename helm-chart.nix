@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> { system = builtins.currentSystem; }, name
 , helm_chart_src, namespace ? name, helm_chart_subpath ? "./"
-, values_yaml_path ? null, force_create_ns ? true, ... }:
+, values_yaml_path ? null, force_create_ns ? true, yaml_extra_defs ? null
+, ... }:
 let
   namespace_definition = pkgs.writeText "${namespace}.yaml" ''
     ---
@@ -47,7 +48,7 @@ in pkgs.stdenv.mkDerivation {
   buildPhase = ''
      ${
        if force_create_ns then
-         "cat " + namespace_definition + " > ${name}.tmp.yaml"
+         "cat " + namespace_definition + " >> ${name}.tmp.yaml"
        else
          ""
      }
@@ -69,8 +70,16 @@ in pkgs.stdenv.mkDerivation {
     echo "done."
 
     echo -n "Kustomize the result... "
-    kustomize build > ${name}.yaml
+    kustomize build > ${name}.tmp2.yaml
     echo "done."
+    
+    ${
+      if !(builtins.isNull yaml_extra_defs) then
+        "cat " + yaml_extra_defs + " >> ${name}.yaml"
+      else
+        ""
+    }
+    cat ${name}.tmp2.yaml >> ${name}.yaml
   '';
 
   installPhase = ''

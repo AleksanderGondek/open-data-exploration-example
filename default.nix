@@ -33,9 +33,16 @@ let
     host = "blackwood";
   };
 
+  argo_wf_helm_chart = import ./argo-workflows.nix {
+    inherit pkgs create_helm_chart;
+    name = "odee-argo-workflows";
+    namespace = "odee-argo-workflows";
+    host = "blackwood";
+  };
+
   odee = pkgs.symlinkJoin {
     inherit name;
-    paths = [ elasticsearch_helm_chart kibana_helm_chart minio_helm_chart ];
+    paths = [ elasticsearch_helm_chart kibana_helm_chart minio_helm_chart argo_wf_helm_chart ];
   };
 
   shell = pkgs.mkShell {
@@ -48,4 +55,4 @@ let
       echo "Deployment bundle avaiable under path: ${odee}"
     '';
   };
-in { inherit odee shell; }
+in { inherit odee shell elasticsearch_helm_chart kibana_helm_chart minio_helm_chart argo_wf_helm_chart; }
