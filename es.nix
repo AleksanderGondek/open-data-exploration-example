@@ -7,10 +7,14 @@ let
     (pkgs.lib.generators.toYAML { } {
       antiAffinity = "soft";
       esJavaOpts = "-Xmx128m -Xms128m";
-      roles = [
-        "master"
-        "data"
-      ];
+      roles = {
+        # Boolean as string value...
+        master = "true";
+        data = "true";
+        ingest = "false";
+        remote_cluster_client = "false";
+        ml = "false";
+      };
       resources = {
         requests = {
           cpu = "100m";
