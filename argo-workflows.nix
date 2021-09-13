@@ -146,11 +146,7 @@ let
     yaml_extra_defs = manual_yaml_definitions;
     include_crds = false;
   };
-in 
-  pkgs.symlinkJoin {
-    inherit name;
-    paths = [
-      crds
-      argo_wf_deployment_manifest
-    ];
-  }
+in pkgs.symlinkJoin {
+  inherit name;
+  paths = [ crds argo_wf_deployment_manifest ];
+}

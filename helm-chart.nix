@@ -1,8 +1,7 @@
 { pkgs ? import <nixpkgs> { system = builtins.currentSystem; }, name
 , helm_chart_src, namespace ? name, helm_chart_subpath ? "./"
 , values_yaml_path ? null, force_create_ns ? true, yaml_extra_defs ? null
-, include_crds ? true, ...
-}:
+, include_crds ? true, ... }:
 let
   namespace_definition = pkgs.writeText "${namespace}.yaml" ''
     ---
@@ -57,12 +56,7 @@ in pkgs.stdenv.mkDerivation {
     echo -n "Templating the chart... "
     helm template \
      --create-namespace \
-     ${
-       if include_crds then
-         "--include-crds \\"
-       else
-         "\\"
-     }
+     ${if include_crds then "--include-crds \\" else "\\"}
      ${
        if !(builtins.isNull values_yaml_path) then
          "-f " + values_yaml_path + "\\"
